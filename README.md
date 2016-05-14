@@ -1,0 +1,2 @@
+# Pendulum
+Regulacja wahadła
