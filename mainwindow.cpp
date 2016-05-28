@@ -2,7 +2,13 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 
+int zmienna=1;
 
+float E;float E_poprz;float E_poprz_poprz;
+
+float f1[3];
+float f2[3];
+float f1z;float f2z;
 
 float Tp=0.005;
 float dt=0.0017;
@@ -92,6 +98,13 @@ MainWindow::MainWindow(QWidget *parent) :
     x0=0;
     pozycja=0;
 
+    fi1=0;
+    fi2=0;
+
+    F=3;
+
+    for(int i=0;i<3;i++){f1[i]=0;f2[i]=0;}
+
 
 }
 
@@ -106,19 +119,22 @@ void MainWindow::glowna_funkcja()
 iter=iter+1;
 
 if(trajektoria==true){
-if(iter==200)r=-15;
-if(iter==1000){r=15;iter=-800;}
-}else{r=0;}
+if(iter==0&&zmienna==1)r=0;
+if(iter==100&&zmienna==1){r=-0.5;zmienna=2;}
+if(zmienna==2&&iter==600){r=0.5;zmienna=3;}
+if(zmienna==3&&fi1<-0.13){r=0.8;zmienna=4;}
+if(zmienna==4&&iter==1200){r=-0.2;zmienna=5;}
+if(zmienna==5&&fi1>0.13){r=-0.5;zmienna=6;}
+if(zmienna==6&&iter==1500){r=-0.5;zmienna=7;}
+if(zmienna==7&&iter==1700){zmienna=2;iter=400;}
+}
+else
+    r=0;
+
 if(ok==false)
-
-    //tym r zmieniam wartość zadaną - dokładnie to wchodzi bezpośrednio do siły
-    //ale ma wpły na przesunięcie i można tym regulować pozycję
-    //tylko są pewne problemy przy zbyt duzym r niestabline,
-    //a przy tych teraz przemiesczenia małe możliwe
-    //dlatego dalej znacznie zwiększyłem skalę co powoduje, że wynikowo wizualnie jest dobrze
-
-    F=r-( 141.4214 *x0+105.1523*dx0+379.3373*fi1-3.6555*dfi1-813.6197*fi2 -128.4217*dfi2);
-
+{F=-( 54.7723 *(x0-r)+43.8986*dx0+257.5083*fi1+5.7595*dfi1 -439.5554*fi2 -67.6810*dfi2);}
+else
+F=0;
 
    ddx0 = (F*IA*IB+F*(l1*l1)*(l2*l2)*(m2*m2)+F*IB*(l1*l1)*m1+F*IA*(l2*l2)*m2+F*IB*(l1*l1)*m2-IA*IB*b0*dx0+F*(l1*l1)*(l2*l2)*m1*m2-F*(l1*l1)*(l2*l2)*(m2*m2)*pow(cos(fi1-fi2),2.0)-(dfi1*dfi1)*(l1*l1*l1)*(l2*l2)*(m2*m2*m2)*sin(fi1)-(dfi2*dfi2)*(l1*l1)*(l2*l2*l2)*(m2*m2*m2)*sin(fi2)-b0*dx0*(l1*l1)*(l2*l2)*(m2*m2)-IB*b0*dx0*(l1*l1)*m1-IA*b0*dx0*(l2*l2)*m2-IB*b0*dx0*(l1*l1)*m2-IB*(dfi1*dfi1)*(l1*l1*l1)*(m1*m1)*sin(fi1)-IB*(dfi1*dfi1)*(l1*l1*l1)*(m2*m2)*sin(fi1)-IA*(dfi2*dfi2)*(l2*l2*l2)*(m2*m2)*sin(fi2)-IB*b1*dfi1*l1*m1*cos(fi1)-IB*b1*dfi1*l1*m2*cos(fi1)-IA*b2*dfi2*l2*m2*cos(fi2)-IA*(dfi1*dfi1)*l1*(l2*l2)*(m2*m2)*sin(fi1)-IB*(dfi2*dfi2)*(l1*l1)*l2*(m2*m2)*sin(fi2)+IB*g*(l1*l1)*(m1*m1)*cos(fi1)*sin(fi1)+IB*g*(l1*l1)*(m2*m2)*cos(fi1)*sin(fi1)+IA*g*(l2*l2)*(m2*m2)*cos(fi2)*sin(fi2)-(dfi2*dfi2)*(l1*l1)*(l2*l2*l2)*(m2*m2*m2)*cos(fi1)*sin(fi1-fi2)+(dfi1*dfi1)*(l1*l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi2)*sin(fi1-fi2)-IA*IB*(dfi1*dfi1)*l1*m1*sin(fi1)-IA*IB*(dfi1*dfi1)*l1*m2*sin(fi1)-IA*IB*(dfi2*dfi2)*l2*m2*sin(fi2)-b0*dx0*(l1*l1)*(l2*l2)*m1*m2+(dfi1*dfi1)*(l1*l1*l1)*(l2*l2)*(m2*m2*m2)*sin(fi1)*pow(cos(fi1-fi2),2.0)+(dfi2*dfi2)*(l1*l1)*(l2*l2*l2)*(m2*m2*m2)*sin(fi2)*pow(cos(fi1-fi2),2.0)+g*(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi1)*sin(fi1)+g*(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi2)*sin(fi2)-(dfi1*dfi1)*(l1*l1*l1)*(l2*l2)*m1*(m2*m2)*sin(fi1)*2.0-(dfi1*dfi1)*(l1*l1*l1)*(l2*l2)*(m1*m1)*m2*sin(fi1)-(dfi2*dfi2)*(l1*l1)*(l2*l2*l2)*m1*(m2*m2)*sin(fi2)+b0*dx0*(l1*l1)*(l2*l2)*(m2*m2)*pow(cos(fi1-fi2),2.0)-IB*(dfi1*dfi1)*(l1*l1*l1)*m1*m2*sin(fi1)*2.0-b1*dfi1*l1*(l2*l2)*(m2*m2)*cos(fi1)-b2*dfi2*(l1*l1)*l2*(m2*m2)*cos(fi2)-b1*dfi1*l1*(l2*l2)*m1*m2*cos(fi1)-b2*dfi2*(l1*l1)*l2*m1*m2*cos(fi2)+(dfi1*dfi1)*(l1*l1*l1)*(l2*l2)*m1*(m2*m2)*sin(fi1)*pow(cos(fi1-fi2),2.0)+IA*(dfi1*dfi1)*l1*(l2*l2)*(m2*m2)*cos(fi2)*sin(fi1-fi2)-IB*(dfi2*dfi2)*(l1*l1)*l2*(m2*m2)*cos(fi1)*sin(fi1-fi2)+g*(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi1)*sin(fi1)*2.0+g*(l1*l1)*(l2*l2)*(m1*m1)*m2*cos(fi1)*sin(fi1)+g*(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi2)*sin(fi2)+g*(l1*l1)*(l2*l2)*(m2*m2)*mA*cos(fi1)*sin(fi1)*(3.0/2.0)+g*(l1*l1)*(l2*l2)*(m2*m2)*mA*cos(fi2)*sin(fi2)*(1.0/2.0)-(dfi1*dfi1)*(l1*l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi1)*cos(fi1-fi2)*sin(fi1-fi2)+(dfi2*dfi2)*(l1*l1)*(l2*l2*l2)*(m2*m2*m2)*cos(fi2)*cos(fi1-fi2)*sin(fi1-fi2)-IA*(dfi1*dfi1)*l1*(l2*l2)*m1*m2*sin(fi1)-IB*(dfi2*dfi2)*(l1*l1)*l2*m1*m2*sin(fi2)+IB*g*(l1*l1)*m1*m2*cos(fi1)*sin(fi1)*2.0+IB*g*(l1*l1)*m1*mA*cos(fi1)*sin(fi1)*(3.0/2.0)+IB*g*(l1*l1)*m2*mA*cos(fi1)*sin(fi1)*(3.0/2.0)+IA*g*(l2*l2)*m2*mA*cos(fi2)*sin(fi2)*(1.0/2.0)-g*(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi1)*sin(fi2)*cos(fi1-fi2)-g*(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi2)*sin(fi1)*cos(fi1-fi2)-(dfi2*dfi2)*(l1*l1)*(l2*l2*l2)*m1*(m2*m2)*cos(fi1)*sin(fi1-fi2)+(dfi1*dfi1)*(l1*l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi2)*sin(fi1-fi2)+b1*dfi1*l1*(l2*l2)*(m2*m2)*cos(fi2)*cos(fi1-fi2)+b2*dfi2*(l1*l1)*l2*(m2*m2)*cos(fi1)*cos(fi1-fi2)-g*(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi1)*sin(fi2)*cos(fi1-fi2)-g*(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi2)*sin(fi1)*cos(fi1-fi2)-g*(l1*l1)*(l2*l2)*(m2*m2)*mA*cos(fi1)*sin(fi2)*cos(fi1-fi2)*(1.0/2.0)-g*(l1*l1)*(l2*l2)*(m2*m2)*mA*cos(fi2)*sin(fi1)*cos(fi1-fi2)*(3.0/2.0)-IB*(dfi2*dfi2)*(l1*l1)*l2*m1*m2*cos(fi1)*sin(fi1-fi2)+g*(l1*l1)*(l2*l2)*m1*m2*mA*cos(fi1)*sin(fi1)*(3.0/2.0)+g*(l1*l1)*(l2*l2)*m1*m2*mA*cos(fi2)*sin(fi2)*(1.0/2.0)-(dfi1*dfi1)*(l1*l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi1)*cos(fi1-fi2)*sin(fi1-fi2)+b2*dfi2*(l1*l1)*l2*m1*m2*cos(fi1)*cos(fi1-fi2)-g*(l1*l1)*(l2*l2)*m1*m2*mA*cos(fi1)*sin(fi2)*cos(fi1-fi2)*(1.0/2.0))/(IB*(l1*l1)*(m1*m1)+IA*(l2*l2)*(m2*m2)+IB*(l1*l1)*(m2*m2)+IA*IB*m0+IA*IB*m1+IA*IB*m2+(l1*l1)*(l2*l2)*(m2*m2*m2)-(l1*l1)*(l2*l2)*(m2*m2*m2)*pow(cos(fi1-fi2),2.0)+(l1*l1)*(l2*l2)*m0*(m2*m2)+(l1*l1)*(l2*l2)*m1*(m2*m2)*2.0+(l1*l1)*(l2*l2)*(m1*m1)*m2+IB*(l1*l1)*m0*m1+IA*(l2*l2)*m0*m2+IB*(l1*l1)*m0*m2+IA*(l2*l2)*m1*m2+IB*(l1*l1)*m1*m2*2.0-IB*(l1*l1)*(m1*m1)*pow(cos(fi1),2.0)-IB*(l1*l1)*(m2*m2)*pow(cos(fi1),2.0)-IA*(l2*l2)*(m2*m2)*pow(cos(fi2),2.0)-(l1*l1)*(l2*l2)*(m2*m2*m2)*pow(cos(fi1),2.0)-(l1*l1)*(l2*l2)*(m2*m2*m2)*pow(cos(fi2),2.0)+(l1*l1)*(l2*l2)*m0*m1*m2-(l1*l1)*(l2*l2)*m1*(m2*m2)*pow(cos(fi1),2.0)*2.0-(l1*l1)*(l2*l2)*(m1*m1)*m2*pow(cos(fi1),2.0)-(l1*l1)*(l2*l2)*m1*(m2*m2)*pow(cos(fi2),2.0)-IB*(l1*l1)*m1*m2*pow(cos(fi1),2.0)*2.0-(l1*l1)*(l2*l2)*m0*(m2*m2)*pow(cos(fi1-fi2),2.0)-(l1*l1)*(l2*l2)*m1*(m2*m2)*pow(cos(fi1-fi2),2.0)+(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi1)*cos(fi2)*cos(fi1-fi2)*2.0+(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi1)*cos(fi2)*cos(fi1-fi2)*2.0);
    ddfi1 = (-b1*dfi1*(l2*l2)*(m2*m2)-IB*b1*dfi1*m0-IB*b1*dfi1*m1-IB*b1*dfi1*m2+IB*g*l1*(m1*m1)*sin(fi1)+IB*g*l1*(m2*m2)*sin(fi1)-(dfi2*dfi2)*l1*(l2*l2*l2)*(m2*m2*m2)*sin(fi1-fi2)+F*l1*(l2*l2)*(m2*m2)*cos(fi1)+F*IB*l1*m1*cos(fi1)+F*IB*l1*m2*cos(fi1)+g*l1*(l2*l2)*(m2*m2*m2)*sin(fi1)-b1*dfi1*(l2*l2)*m0*m2-b1*dfi1*(l2*l2)*m1*m2+b1*dfi1*(l2*l2)*(m2*m2)*pow(cos(fi2),2.0)-IB*(dfi2*dfi2)*l1*l2*(m2*m2)*sin(fi1-fi2)+g*l1*(l2*l2)*m0*(m2*m2)*sin(fi1)+g*l1*(l2*l2)*m1*(m2*m2)*sin(fi1)*2.0+g*l1*(l2*l2)*(m1*m1)*m2*sin(fi1)+g*l1*(l2*l2)*(m2*m2)*mA*sin(fi1)*(3.0/2.0)-IB*b0*dx0*l1*m1*cos(fi1)-IB*b0*dx0*l1*m2*cos(fi1)-(dfi1*dfi1)*(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi1)*sin(fi1)+IB*g*l1*m0*m1*sin(fi1)+IB*g*l1*m0*m2*sin(fi1)+IB*g*l1*m1*m2*sin(fi1)*2.0+IB*g*l1*m0*mA*sin(fi1)*(3.0/2.0)+IB*g*l1*m1*mA*sin(fi1)*(3.0/2.0)+IB*g*l1*m2*mA*sin(fi1)*(3.0/2.0)+(dfi2*dfi2)*l1*(l2*l2*l2)*(m2*m2*m2)*pow(cos(fi2),2.0)*sin(fi1-fi2)-F*l1*(l2*l2)*(m2*m2)*cos(fi2)*cos(fi1-fi2)-(dfi1*dfi1)*(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi1-fi2)*sin(fi1-fi2)+F*l1*(l2*l2)*m1*m2*cos(fi1)-g*l1*(l2*l2)*(m2*m2*m2)*sin(fi2)*cos(fi1-fi2)-(dfi2*dfi2)*l1*(l2*l2*l2)*m0*(m2*m2)*sin(fi1-fi2)-(dfi2*dfi2)*l1*(l2*l2*l2)*m1*(m2*m2)*sin(fi1-fi2)-IB*(dfi1*dfi1)*(l1*l1)*(m1*m1)*cos(fi1)*sin(fi1)-IB*(dfi1*dfi1)*(l1*l1)*(m2*m2)*cos(fi1)*sin(fi1)+b2*dfi2*l1*l2*(m2*m2)*cos(fi1-fi2)-(dfi2*dfi2)*l1*(l2*l2*l2)*(m2*m2*m2)*cos(fi1)*sin(fi2)-g*l1*(l2*l2)*(m2*m2*m2)*pow(cos(fi2),2.0)*sin(fi1)-b0*dx0*l1*(l2*l2)*(m2*m2)*cos(fi1)-g*l1*(l2*l2)*m0*(m2*m2)*sin(fi2)*cos(fi1-fi2)-g*l1*(l2*l2)*m1*(m2*m2)*sin(fi2)*cos(fi1-fi2)-g*l1*(l2*l2)*(m2*m2)*mA*sin(fi2)*cos(fi1-fi2)*(1.0/2.0)-b0*dx0*l1*(l2*l2)*m1*m2*cos(fi1)+(dfi1*dfi1)*(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi1)*cos(fi2)*sin(fi1-fi2)+(dfi1*dfi1)*(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi2)*sin(fi1)*cos(fi1-fi2)-IB*(dfi2*dfi2)*l1*l2*m0*m2*sin(fi1-fi2)-IB*(dfi2*dfi2)*l1*l2*m1*m2*sin(fi1-fi2)+g*l1*(l2*l2)*m0*m1*m2*sin(fi1)+g*l1*(l2*l2)*m0*m2*mA*sin(fi1)*(3.0/2.0)+g*l1*(l2*l2)*m1*m2*mA*sin(fi1)*(3.0/2.0)+g*l1*(l2*l2)*(m2*m2*m2)*cos(fi1)*cos(fi2)*sin(fi2)-(dfi2*dfi2)*l1*(l2*l2*l2)*m1*(m2*m2)*cos(fi1)*sin(fi2)-g*l1*(l2*l2)*m1*(m2*m2)*pow(cos(fi2),2.0)*sin(fi1)-g*l1*(l2*l2)*(m2*m2)*mA*pow(cos(fi2),2.0)*sin(fi1)*(3.0/2.0)-b2*dfi2*l1*l2*(m2*m2)*cos(fi1)*cos(fi2)-(dfi1*dfi1)*(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi1)*sin(fi1)*2.0-(dfi1*dfi1)*(l1*l1)*(l2*l2)*(m1*m1)*m2*cos(fi1)*sin(fi1)-IB*(dfi2*dfi2)*l1*l2*(m2*m2)*cos(fi1)*sin(fi2)-IB*(dfi1*dfi1)*(l1*l1)*m1*m2*cos(fi1)*sin(fi1)*2.0+(dfi2*dfi2)*l1*(l2*l2*l2)*(m2*m2*m2)*cos(fi2)*sin(fi2)*cos(fi1-fi2)+b2*dfi2*l1*l2*m0*m2*cos(fi1-fi2)+b2*dfi2*l1*l2*m1*m2*cos(fi1-fi2)-(dfi1*dfi1)*(l1*l1)*(l2*l2)*m0*(m2*m2)*cos(fi1-fi2)*sin(fi1-fi2)-(dfi1*dfi1)*(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi1-fi2)*sin(fi1-fi2)+b0*dx0*l1*(l2*l2)*(m2*m2)*cos(fi2)*cos(fi1-fi2)-g*l1*(l2*l2)*m0*m2*mA*sin(fi2)*cos(fi1-fi2)*(1.0/2.0)-g*l1*(l2*l2)*m1*m2*mA*sin(fi2)*cos(fi1-fi2)*(1.0/2.0)-b2*dfi2*l1*l2*m1*m2*cos(fi1)*cos(fi2)+(dfi1*dfi1)*(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi1)*cos(fi2)*sin(fi1-fi2)+(dfi1*dfi1)*(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi2)*sin(fi1)*cos(fi1-fi2)+g*l1*(l2*l2)*m1*(m2*m2)*cos(fi1)*cos(fi2)*sin(fi2)+g*l1*(l2*l2)*(m2*m2)*mA*cos(fi1)*cos(fi2)*sin(fi2)*(1.0/2.0)-IB*(dfi2*dfi2)*l1*l2*m1*m2*cos(fi1)*sin(fi2)+g*l1*(l2*l2)*m1*m2*mA*cos(fi1)*cos(fi2)*sin(fi2)*(1.0/2.0))/(IB*(l1*l1)*(m1*m1)+IA*(l2*l2)*(m2*m2)+IB*(l1*l1)*(m2*m2)+IA*IB*m0+IA*IB*m1+IA*IB*m2+(l1*l1)*(l2*l2)*(m2*m2*m2)-(l1*l1)*(l2*l2)*(m2*m2*m2)*pow(cos(fi1-fi2),2.0)+(l1*l1)*(l2*l2)*m0*(m2*m2)+(l1*l1)*(l2*l2)*m1*(m2*m2)*2.0+(l1*l1)*(l2*l2)*(m1*m1)*m2+IB*(l1*l1)*m0*m1+IA*(l2*l2)*m0*m2+IB*(l1*l1)*m0*m2+IA*(l2*l2)*m1*m2+IB*(l1*l1)*m1*m2*2.0-IB*(l1*l1)*(m1*m1)*pow(cos(fi1),2.0)-IB*(l1*l1)*(m2*m2)*pow(cos(fi1),2.0)-IA*(l2*l2)*(m2*m2)*pow(cos(fi2),2.0)-(l1*l1)*(l2*l2)*(m2*m2*m2)*pow(cos(fi1),2.0)-(l1*l1)*(l2*l2)*(m2*m2*m2)*pow(cos(fi2),2.0)+(l1*l1)*(l2*l2)*m0*m1*m2-(l1*l1)*(l2*l2)*m1*(m2*m2)*pow(cos(fi1),2.0)*2.0-(l1*l1)*(l2*l2)*(m1*m1)*m2*pow(cos(fi1),2.0)-(l1*l1)*(l2*l2)*m1*(m2*m2)*pow(cos(fi2),2.0)-IB*(l1*l1)*m1*m2*pow(cos(fi1),2.0)*2.0-(l1*l1)*(l2*l2)*m0*(m2*m2)*pow(cos(fi1-fi2),2.0)-(l1*l1)*(l2*l2)*m1*(m2*m2)*pow(cos(fi1-fi2),2.0)+(l1*l1)*(l2*l2)*(m2*m2*m2)*cos(fi1)*cos(fi2)*cos(fi1-fi2)*2.0+(l1*l1)*(l2*l2)*m1*(m2*m2)*cos(fi1)*cos(fi2)*cos(fi1-fi2)*2.0);
@@ -154,7 +170,8 @@ void MainWindow::paintEvent(QPaintEvent* e)
 
 
     //tu jest ta wymagana bardzo duża skala, aby było widać ruchy
-    xo=pozycja*2900+650;
+    xo=pozycja*650+580;
+yo=400;
 
 
 
@@ -163,6 +180,7 @@ void MainWindow::paintEvent(QPaintEvent* e)
     painter.setPen(pen);
     painter.drawLine(0,yo,1400,yo);
 
+    // painter.drawEllipse(r*500+600-5,50-5,10,10);
 
     pen.setColor(white);
     pen.setWidth(6);
@@ -228,10 +246,10 @@ void MainWindow::mousePressEvent(QMouseEvent * ev)
 
     if(ev->y()<y[0]){
     if(ev->x()>x[0])
-    dfi2=dfi2+0.3;
+    dfi2=dfi2+0.2;
 
     if(ev->x()<x[0])
-    dfi2=dfi2-0.3;
+    dfi2=dfi2-0.2;
     }
 
     if(ev->y()>=y[0]){
@@ -255,6 +273,6 @@ void MainWindow::on_checkBox_clicked(bool checked)
 
 void MainWindow::on_checkBox_2_clicked(bool checked)
 {
-    iter=0;
+    iter=0;i=0;
     trajektoria=checked;
 }
